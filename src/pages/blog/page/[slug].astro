@@ -2,97 +2,71 @@
 import Pagination from "@/components/Pagination.astro";
 import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
-// Hapus import MDX lama: getSinglePage, CollectionEntry, getEntry
-import { client } from "@/lib/sanityClient"; // <-- Import Klien Sanity Aman
+import { client } from "@/lib/sanityClient"; 
+import { LIST_QUERY, POSTS_SLUG_QUERY } from "@/lib/sanityQueries"; // 🚀 PERBAIKAN IMPORT
 import { markdownify } from "@/lib/utils/textConverter";
 import Post from "@/partials/Post.astro";
 
-// 👑 QUERY GROQ UNTUK DAFTAR ARTIKEL (RINGAN & SEO)
-const LIST_QUERY = `
-*[_type == "post" && defined(slug.current) && publishedAt < now()] 
-| order(publishedAt desc) {
-  _id,
-  title,
-  "slug": slug.current, // <-- Penting untuk URL
-  publishedAt,
-  
-  // Data untuk tampilan card:
-  "summary": array::join(string::split(pt::text(body), "")[0..200], "") + "...",
-  "imageUrl": mainImage.asset->url,
-  
-  // Ambil data kategori (jika diperlukan oleh komponen Post)
-  categories[]->{title, "slug": slug.current},
+const POSTS_PER_PAGE = config.settings.pagination; 
 
-  // Ambil metadata SEO untuk halaman daftar (jika digunakan)
-  "metaDescription": seo.metaDescription,
-}`;
-
-
-// 1. Ganti Logika getStaticPaths
+// 1. getStaticPaths: Menghitung berapa banyak halaman pagination yang harus dibuat.
 export async function getStaticPaths() {
-  // Fetch SEMUA post dari Sanity
-  const allPosts = await client.fetch(LIST_QUERY);
-  
-  const totalPages = Math.ceil(allPosts.length / config.settings.pagination);
-  const paths = [];
+  // Menggunakan POSTS_SLUG_QUERY agar fetch lebih ringan
+  const allPosts = await client.fetch(POSTS_SLUG_QUERY);
+  
+  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+  const paths = [];
 
-  // Buat paths untuk pagination, dimulai dari halaman 2
-  for (let i = 1; i < totalPages; i++) {
-    paths.push({
-      params: {
-        slug: (i + 1).toString(),
-      },
-    });
-  }
-  
-  // Penting: Halaman 1 (index.astro) akan menggunakan logic yang sama
-  return paths;
+  // Buat paths untuk halaman 2 dan seterusnya (halaman 1 ditangani oleh index.astro)
+  for (let i = 1; i < totalPages; i++) {
+    paths.push({
+      params: {
+        slug: (i + 1).toString(),
+      },
+    });
+  }
+  return paths;
 }
 
 
-// 2. Ganti Logika Pengambilan Konten
+// 2. Logika Pengambilan Konten & Pagination
 const { slug } = Astro.params;
 
-// Asumsi: Kita hanya butuh title blog index dari config.json atau hardcode.
-// Jika Anda ingin mengambil 'postIndex' dari Sanity, Anda harus membuat schema baru.
-const blogTitle = "Blog"; // Ganti ini jika Anda punya sumber Title Blog lain
+const blogTitle = "Blog"; // Hardcode atau ambil dari config/Sanity settings
 
-// 2a. Ambil SEMUA post dari Sanity
+// Ambil SEMUA post (dengan data penuh yang dibutuhkan oleh <Post>)
 const allPosts = await client.fetch(LIST_QUERY);
-const totalPages = Math.ceil(allPosts.length / config.settings.pagination);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
 
-// 2b. Lakukan sorting dan pagination (sama seperti sebelumnya)
+// Lakukan logic pemotongan array (pagination)
 const currentPage = slug && !isNaN(Number(slug)) ? Number(slug) : 1;
-const indexOfLastPost = currentPage * config.settings.pagination;
-const indexOfFirstPost = indexOfLastPost - config.settings.pagination;
+const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
 const currentPosts = allPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-// Catatan: Karena kita tidak lagi menggunakan frontmatter MDX, 
-// pastikan komponen <Post> Anda menggunakan field Sanity yang baru (title, slug, imageUrl, summary).
 ---
 
 <Base title={blogTitle}>
-  <section class="section">
-    <div class="container">
-      <h1
-        class="mb-10 text-center font-normal lg:text-[56px]"
-        set:html={markdownify(blogTitle)}
-      />
-      <div class="row">
-        {
-          currentPosts.map((post) => (
-            <div class="col-12 mb-8 sm:col-6">
-              {/* post sekarang adalah object dari Sanity, bukan CollectionEntry */}
-              <Post post={post} /> 
-            </div>
-          ))
-        }
-      </div>
-      <Pagination
-        section={"blog"}
-        totalPages={totalPages}
-        currentPage={currentPage}
-      />
-    </div>
-  </section>
+  <section class="section">
+    <div class="container">
+      <h1
+        class="mb-10 text-center font-normal lg:text-[56px]"
+        set:html={markdownify(blogTitle)}
+      />
+      <div class="row">
+        {
+          currentPosts.map((post) => (
+            <div class="col-12 mb-8 sm:col-6">
+              <Post post={post} /> 
+            </div>
+          ))
+        }
+      </div>
+      <Pagination
+        section={"blog"}
+        totalPages={totalPages}
+        currentPage={currentPage}
+      />
+    </div>
+  </section>
 </Base>
