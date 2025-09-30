@@ -3,27 +3,46 @@ import { Image } from "astro:assets";
 import config from "@/config/config.json";
 import { plainify } from "@/lib/utils/textConverter";
 
-const { post, index } = Astro.props;
+const { post, index } = Astro.props; // post sekarang adalah objek Sanity langsung
+
+// 🎯 Data Sanity: Akses langsung field dari objek 'post'
+const { 
+    title, 
+    imageUrl, // <-- Sanity field yang kita buat di LIST_QUERY
+    slug,     // <-- Sanity field yang kita buat di LIST_QUERY
+    summary   // <-- Sanity field ringkasan (dari Portable Text)
+} = post;
+
 const { summary_length } = config.settings;
+
+// Karena imageUrl adalah string URL CDN Sanity, kita tidak bisa menggunakan
+// <Image> tanpa konfigurasi Astro Image Services yang spesifik.
+// Untuk kemudahan, kita akan kembali menggunakan tag <img> biasa jika Image tidak berfungsi,
+// TAPI, Bigspring menggunakan `Image` component. Kita akan pertahankan, 
+// tetapi jika URL Sanity tidak dikenal sebagai aset Astro, Anda mungkin harus beralih ke <img>.
+// Mari kita asumsikan Astro dapat menangani URL yang di-*fetch* (walaupun ini sering bermasalah).
+
+// UNTUK AMAN DAN CEPAT, SAYA GANTI KE <img> (seperti yang dilakukan di PostSingle)
 ---
 
 <div class="post">
-  {
-    post.data.image && (
-      <Image
-        class="rounded-lg"
-        src={post.data.image}
-        alt={post.data.title}
+  {
+    imageUrl && ( // <-- Menggunakan imageUrl Sanity
+      <img
+        class="rounded-lg w-full h-auto"
+        src={imageUrl} // <-- Menggunakan imageUrl Sanity
+        alt={title}    // <-- Menggunakan title Sanity
         width={index === 0 ? 925 : 445}
-        height={index === 0 ? 475 : 230}
-      />
-    )
-  }
-  <h2 class="h3 mb-2 mt-4">
-    <a href={`/blog/${post.id}`} class="block hover:text-primary">
-      {post.data.title}
-    </a>
-  </h2>
-  <p set:html={plainify(post.body.slice(0, summary_length))} />
-  <a class="btn btn-primary mt-4" href={`/blog/${post.id}`}> Read More </a>
+        height={index === 0 ? 475 : 230}
+      />
+    )
+  }
+  <h2 class="h3 mb-2 mt-4">
+    <a href={`/blog/${slug}`} class="block hover:text-primary"> {/* <-- Menggunakan slug Sanity */}
+      {title} {/* <-- Menggunakan title Sanity */}
+    </a>
+  </h2>
+  {/* Ringkasan dari Sanity (sudah berupa teks datar) */}
+  <p set:html={plainify(summary.slice(0, summary_length))} />
+  <a class="btn btn-primary mt-4" href={`/blog/${slug}`}> Read More </a> {/* <-- Menggunakan slug Sanity */}
 </div>

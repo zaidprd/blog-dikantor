@@ -1,33 +1,37 @@
----
-import { getSinglePage } from "@/lib/contentParser.astro";
-import { slugify } from "@/lib/utils/textConverter";
+// src/lib/taxonomy.ts
+// Ganti logika parsing MDX dengan fetch Sanity yang efisien
 
-// get taxonomy from frontmatter
-export const getTaxonomy = async (collection: any, name: string) => {
-  const singlePages = await getSinglePage(collection);
-  const taxonomyPages = singlePages.map((page: any) => page.data[name]);
-  let taxonomies: string[] = [];
-  for (let i = 0; i < taxonomyPages.length; i++) {
-    const categoryArray = taxonomyPages[i];
-    for (let j = 0; j < categoryArray.length; j++) {
-      taxonomies.push(slugify(categoryArray[j])!);
-    }
+import { client } from "./sanityClient"; // Import klien Sanity yang aman
+
+// 👑 QUERY GROQ untuk mengambil SEMUA kategori unik
+// dan data yang dibutuhkan oleh Bigspring (title dan slug)
+const CATEGORY_QUERY = `
+*[_type == "category" && defined(slug.current)] {
+  title,
+  "slug": slug.current
+}`;
+
+// Kita hanya butuh satu fungsi, karena Sanity sudah mengelola keunikan.
+// getAllTaxonomy diganti namanya menjadi getSanityCategories
+export const getSanityCategories = async () => {
+  try {
+    const categories = await client.fetch(CATEGORY_QUERY);
+    
+    // Kembalikan array objek (misalnya: [{title: "WebDev", slug: "webdev"}])
+    return categories;
+  } catch (error) {
+    console.error("Error fetching categories from Sanity:", error);
+    return [];
   }
-  const taxonomy = [...new Set(taxonomies)];
-  return taxonomy;
 };
 
-// get all taxonomies from frontmatter
-export const getAllTaxonomy = async (collection: any, name: string) => {
-  const singlePages = await getSinglePage(collection);
-  const taxonomyPages = singlePages.map((page: any) => page.data[name]);
-  let taxonomies: string[] = [];
-  for (let i = 0; i < taxonomyPages.length; i++) {
-    const categoryArray = taxonomyPages[i];
-    for (let j = 0; j < categoryArray.length; j++) {
-      taxonomies.push(slugify(categoryArray[j])!);
-    }
-  }
-  return taxonomies;
+// ----------------------------------------------------------------------
+// Jika Anda memerlukan fungsi untuk mendapatkan list SLUG unik saja 
+// (untuk getTaxonomy di Astro lama), Anda bisa buat helper seperti ini:
+// ----------------------------------------------------------------------
+
+export const getTaxonomySlugs = async () => {
+    const categories = await getSanityCategories();
+    // Kembalikan array string slug unik
+    return categories.map((cat: any) => cat.slug);
 };
----

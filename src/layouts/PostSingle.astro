@@ -1,36 +1,48 @@
 ---
 import { markdownify } from "@/lib/utils/textConverter";
-import { Image } from "astro:assets";
-import { render } from "astro:content";
+// Hapus: import { render } from "astro:content";
+// Hapus: import { Image } from "astro:assets"; // Pindah ke tag <img> biasa
+
+// Import komponen Portable Text (Pastikan path-nya benar!)
+import PortableTextRenderer from "@/components/PortableTextRenderer.jsx"; 
 
 const { post } = Astro.props;
-const { Content } = await render(post);
-const { title, image } = post.data;
+
+// post.data adalah objek Sanity yang sudah di-fetch
+const sanityPost = post.data; 
+
+const { title, imageUrl } = sanityPost;
+
+// Konten utama yang berupa Portable Text array
+const contentBody = sanityPost.body; 
 ---
 
 <section class="section">
-  <div class="container">
-    <div class="row justify-center">
-      <div class="col-12 md:col-8">
-        <article class="text-center">
-          {
-            image && (
-              <Image
-                src={image}
-                height={500}
-                width={1000}
-                alt={title}
-                class="rounded-lg"
-              />
-            )
-          }
-          <h1 set:html={markdownify(title)} class="h2 text-left my-6" />
+  <div class="container">
+    <div class="row justify-center">
+      <div class="col-12 md:col-8">
+        <article class="text-center">
+          {
+            imageUrl && (
+              <img
+               
+                src={imageUrl}
+                alt={title}
+                class="rounded-lg w-full h-auto"
+                width="1000"
+                height="500"
+              />
+            )
+          }
+          <h1 set:html={markdownify(title)} class="h2 text-left my-6" />
 
-          <div class="content mb-16 text-left">
-            <Content />
-          </div>
-        </article>
-      </div>
-    </div>
-  </div>
+          <div class="content mb-16 text-left">
+            {/* 🚨 MENGGANTI <Content /> DENGAN RENDERER SANITY */}
+            {/* client:load penting agar komponen React berjalan di browser */}
+            <PortableTextRenderer content={contentBody} client:load />
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
 </section>

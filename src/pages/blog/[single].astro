@@ -1,29 +1,91 @@
 ---
 import Base from "@/layouts/Base.astro";
 import PostSingle from "@/layouts/PostSingle.astro";
-import { getSinglePage } from "@/lib/contentParser.astro";
+// Hapus: import { getSinglePage } from "@/lib/contentParser.astro";
+
+// Import Sanity Client yang sudah menggunakan Environment Variables (ENV)
+import { client } from "@/lib/sanityClient"; 
+
+// 👑 QUERY GROQ UNTUK ARTIKEL TUNGGAL DENGAN DATA SEO LENGKAP
+const SINGLE_POST_QUERY = `
+*[_type == "post" && slug.current == $slug][0]{
+  // Kita ambil semua data yang dibutuhkan oleh layout dan SEO
+  title,
+  "slug": slug.current,
+  publishedAt,
+  body, // <-- Ini Portable Text, konten utama
+  "imageUrl": mainImage.asset->url,
+  
+  // Data SEO (sesuai field di schema Sanity Anda)
+  seo {
+    metaTitle,
+    metaDescription,
+    "ogImage": openGraphImage.asset->url
+  }
+}`;
+
 
 export async function getStaticPaths() {
-  const posts = await getSinglePage("blog");
+  // 1. Fetch semua slug dari Sanity untuk membuat paths
+  // Ini lebih cepat daripada fetch konten penuh
+  const slugs = await client.fetch(`*[_type == "post" && defined(slug.current)].slug.current`);
 
-  const paths = posts.map((post) => ({
+  // 2. Buat paths menggunakan slug Sanity
+  return slugs.map((slug) => ({
     params: {
-      single: post.id,
+      // Kita tetap menggunakan 'single' sebagai nama parameter URL, 
+      // tetapi nilainya adalah slug dari Sanity
+      single: slug, 
     },
-    props: { post },
+    // Kita tidak lagi menggunakan 'props: { post }' di getStaticPaths
+    // karena kita akan fetch data lengkapnya di bawah.
   }));
-  return paths;
 }
 
-const { post } = Astro.props;
-const { title, meta_title, description, image } = post.data;
+
+// Ambil slug dari URL
+const { single } = Astro.params; 
+
+// Fetch data artikel tunggal dari Sanity
+const post = await client.fetch(SINGLE_POST_QUERY, { slug: single });
+
+if (!post) {
+    // Jika artikel tidak ditemukan di Sanity
+    return Astro.redirect('/404');
+}
+
+// 🎯 Mapping Data Sanity ke Variabel Lama (Mempertahankan Gaya Props)
+
+// post.data.title => post.title
+const title = post.title;
+
+// post.data.meta_title => post.seo.metaTitle
+const meta_title = post.seo?.metaTitle;
+
+// post.data.description => post.seo.metaDescription
+const description = post.seo?.metaDescription;
+
+// post.data.image => post.seo.ogImage (jika ada) atau fallback ke post.imageUrl
+const image = post.seo?.ogImage || post.imageUrl;
+
+
+// 🚨 PENTING: Struktur objek 'post' yang diteruskan ke PostSingle sekarang adalah objek Sanity.
+// Anda harus mengubah PostSingle.astro agar menggunakan post.title, post.body, dll.
+// daripada post.data.title, post.data.body.
+const postForLayout = {
+    // Membungkus post Sanity agar PostSingle dapat mengakses semua data
+    data: post, 
+    // Jika komponen lama membutuhkan field body secara langsung, 
+    // Anda bisa menambahkannya di sini, tapi PostSingle seharusnya cukup menerima objek 'post'.
+};
+
 ---
 
 <Base
-  title={title}
-  meta_title={meta_title}
-  description={description}
-  image={image}
+  title={title}
+  meta_title={meta_title}
+  description={description}
+  image={image}
 >
-  <PostSingle post={post} />
+  <PostSingle post={postForLayout} /> 
 </Base>
