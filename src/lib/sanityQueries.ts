@@ -1,3 +1,5 @@
+// src/lib/sanityQueries.ts
+
 // Query untuk mengambil SLUG dari SEMUA post yang dipublikasi (untuk getStaticPaths di pagination)
 export const POSTS_SLUG_QUERY = `
   *[_type == "post" && publishedAt < now() && defined(slug.current)] {

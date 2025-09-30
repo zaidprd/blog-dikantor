@@ -3,10 +3,11 @@ import Pagination from "@/components/Pagination.astro";
 import config from "@/config/config.json";
 import Base from "@/layouts/Base.astro";
 import { client } from "@/lib/sanityClient"; 
-import { LIST_QUERY, POSTS_SLUG_QUERY } from "@/lib/sanityQueries"; // 🚀 PERBAIKAN IMPORT
+import { LIST_QUERY, POSTS_SLUG_QUERY } from "@/lib/sanityQueries"; // Import dari file queries
 import { markdownify } from "@/lib/utils/textConverter";
 import Post from "@/partials/Post.astro";
 
+// 🚀 PERBAIKAN FINAL: Definisikan variabel konfigurasi sebelum getStaticPaths
 const POSTS_PER_PAGE = config.settings.pagination; 
 
 // 1. getStaticPaths: Menghitung berapa banyak halaman pagination yang harus dibuat.
@@ -14,10 +15,11 @@ export async function getStaticPaths() {
   // Menggunakan POSTS_SLUG_QUERY agar fetch lebih ringan
   const allPosts = await client.fetch(POSTS_SLUG_QUERY);
   
-  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+  // POSTS_PER_PAGE sekarang dapat diakses di sini
+  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE); 
   const paths = [];
 
-  // Buat paths untuk halaman 2 dan seterusnya (halaman 1 ditangani oleh index.astro)
+  // Buat paths untuk halaman 2 dan seterusnya
   for (let i = 1; i < totalPages; i++) {
     paths.push({
       params: {
@@ -32,7 +34,7 @@ export async function getStaticPaths() {
 // 2. Logika Pengambilan Konten & Pagination
 const { slug } = Astro.params;
 
-const blogTitle = "Blog"; // Hardcode atau ambil dari config/Sanity settings
+const blogTitle = "Blog";
 
 // Ambil SEMUA post (dengan data penuh yang dibutuhkan oleh <Post>)
 const allPosts = await client.fetch(LIST_QUERY);
