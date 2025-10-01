@@ -1,48 +1,106 @@
 ---
 import { markdownify } from "@/lib/utils/textConverter";
-// Hapus: import { render } from "astro:content";
-// Hapus: import { Image } from "astro:assets"; // Pindah ke tag <img> biasa
-
-// Import komponen Portable Text (Pastikan path-nya benar!)
-import PortableTextRenderer from "@/components/PortableTextRenderer.jsx"; 
+import PortableTextRenderer from "@/components/PortableTextRenderer.jsx";
 
 const { post } = Astro.props;
+const sanityPost = post.data;
 
-// post.data adalah objek Sanity yang sudah di-fetch
-const sanityPost = post.data; 
+const { title, imageUrl, publishedAt, relatedLinks } = sanityPost;
+const contentBody = sanityPost.body;
 
-const { title, imageUrl } = sanityPost;
+function formatDate(dateString) {
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(dateString).toLocaleDateString("id-ID", options);
+}
 
-// Konten utama yang berupa Portable Text array
-const contentBody = sanityPost.body; 
+const formattedDate = formatDate(publishedAt);
+
+// ===========================================
+// SINTAKS AMAN: Pre-render Tag HTML di Frontmatter
+// ===========================================
+let relatedTagsHtml = "";
+
+if (relatedLinks && relatedLinks.length > 0) {
+  const tags = relatedLinks
+    .map((link) => {
+      let buttonClass = "text-sm border transition-colors duration-200 px-3 py-1 w-auto ";
+
+      if (link.style === "primary") {
+        buttonClass += "bg-primary text-white border-primary hover:bg-primary/90";
+      } else if (link.style === "outline") {
+        buttonClass += "bg-white text-gray-700 border-gray-300 hover:bg-gray-50";
+      } else {
+        buttonClass += "bg-white text-gray-700 border-gray-300 hover:bg-gray-50";
+      }
+
+      return `
+        <a 
+          href="${link.url}" 
+          class="${buttonClass}"
+          aria-label="Lihat artikel terkait: ${link.label}"
+          ${link.url?.startsWith("http") ? 'target="_blank"' : ""} 
+          ${link.url?.startsWith("http") ? 'rel="noopener noreferrer"' : ""}
+        >
+          #${link.label}
+        </a>
+      `;
+    })
+    .join("");
+
+  relatedTagsHtml = `
+    <div class="mt-10 pt-6 border-t border-gray-300 text-left">
+      <h2 class="h4 font-semibold text-gray-800 mb-4">Tag:</h2>
+      <div class="flex flex-wrap gap-2">
+        ${tags}
+      </div>
+    </div>
+  `;
+}
 ---
 
 <section class="section">
-  <div class="container">
-    <div class="row justify-center">
-      <div class="col-12 md:col-8">
-        <article class="text-center">
-          {
-            imageUrl && (
-              <img
-               
-                src={imageUrl}
-                alt={title}
-                class="rounded-lg w-full h-auto"
-                width="1000"
-                height="500"
-              />
-            )
-          }
-          <h1 set:html={markdownify(title)} class="h2 text-left my-6" />
+  <div class="container">
+    <div class="row">
+      <div class="col-12 md:col-8">
+        <article>
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={title}
+              class="rounded-lg w-full h-auto"
+              width="1000"
+              height="500"
+            />
+          )}
 
-          <div class="content mb-16 text-left">
-            {/* 🚨 MENGGANTI <Content /> DENGAN RENDERER SANITY */}
-            {/* client:load penting agar komponen React berjalan di browser */}
-            <PortableTextRenderer content={contentBody} client:load />
-          </div>
-        </article>
-      </div>
-    </div>
-  </div>
+          <h1 set:html={markdownify(title)} class="h2 text-left mt-6" />
+
+          <div class="flex items-center text-left mb-8 pb-4 border-b border-gray-200">
+            {sanityPost.author?.image && (
+              <img
+                src={`${sanityPost.author.image}?w=50&h=50&fit=crop`}
+                alt={sanityPost.author.name || "Penulis"}
+                class="w-10 h-10 rounded-full object-cover mr-4"
+              />
+            )}
+            <div>
+              <p class="text-gray-700 font-medium leading-tight">
+                Oleh: {sanityPost.author?.name || "Anonim"}
+              </p>
+              <time datetime={publishedAt} class="text-sm text-gray-500 leading-tight">
+                Dipublikasikan pada: {formattedDate}
+              </time>
+            </div>
+          </div>
+
+          <div class="content mb-16 text-left">
+            <PortableTextRenderer content={contentBody} client:load />
+          </div>
+
+          {/* 🚀 Tampilkan HTML yang sudah dibentuk */}
+          <div set:html={relatedTagsHtml}></div>
+        </article>
+      </div>
+    </div>
+  </div>
 </section>

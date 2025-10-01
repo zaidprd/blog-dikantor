@@ -3,46 +3,83 @@ import { Image } from "astro:assets";
 import config from "@/config/config.json";
 import { plainify } from "@/lib/utils/textConverter";
 
-const { post, index } = Astro.props; // post sekarang adalah objek Sanity langsung
+// 1. DESTRUCTURING PROPS
+const { post, index } = Astro.props; 
 
-// 🎯 Data Sanity: Akses langsung field dari objek 'post'
-const { 
-    title, 
-    imageUrl, // <-- Sanity field yang kita buat di LIST_QUERY
-    slug,     // <-- Sanity field yang kita buat di LIST_QUERY
-    summary   // <-- Sanity field ringkasan (dari Portable Text)
+const { 
+    title, 
+    imageUrl, 
+    slug,     
+    summary,
+    publishedAt,
+    authorName,
+    authorImage // Kini sudah terisi datanya
 } = post;
 
 const { summary_length } = config.settings;
 
-// Karena imageUrl adalah string URL CDN Sanity, kita tidak bisa menggunakan
-// <Image> tanpa konfigurasi Astro Image Services yang spesifik.
-// Untuk kemudahan, kita akan kembali menggunakan tag <img> biasa jika Image tidak berfungsi,
-// TAPI, Bigspring menggunakan `Image` component. Kita akan pertahankan, 
-// tetapi jika URL Sanity tidak dikenal sebagai aset Astro, Anda mungkin harus beralih ke <img>.
-// Mari kita asumsikan Astro dapat menangani URL yang di-*fetch* (walaupun ini sering bermasalah).
 
-// UNTUK AMAN DAN CEPAT, SAYA GANTI KE <img> (seperti yang dilakukan di PostSingle)
+// 2. DEFINISI FUNGSI
+function limitWords(str, limit = 10) {
+  if (!str) return "";
+  
+  const words = str.split(/\s+/); 
+  const limitedWords = words.slice(0, limit);
+  
+  return limitedWords.join(" ");
+}
+
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+}
+
+
+// 3. PEMANGGILAN FUNGSI
+const formattedDate = formatDate(publishedAt);
+const displayTitle = limitWords(title, 10);
 ---
 
-<div class="post">
-  {
-    imageUrl && ( // <-- Menggunakan imageUrl Sanity
-      <img
-        class="rounded-lg w-full h-auto"
-        src={imageUrl} // <-- Menggunakan imageUrl Sanity
-        alt={title}    // <-- Menggunakan title Sanity
-        width={index === 0 ? 925 : 445}
-        height={index === 0 ? 475 : 230}
-      />
+<div class="post group">   {
+    imageUrl && (
+            <div class="relative rounded-lg overflow-hidden w-full"> 
+        <a href={`/blog/${slug}`} class="block">
+          <img
+            class="w-full h-auto transform transition-transform duration-500 ease-in-out group-hover:scale-110" 
+                        src={imageUrl}
+            alt={title}
+            width={index === 0 ? 925 : 445}
+            height={index === 0 ? 475 : 230}
+          />
+          
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+
+          <div class="absolute top-0 left-0 p-6 flex items-center text-white z-10">
+            {authorImage && (
+                <img
+                    src={`${authorImage}?w=40&h=40&fit=crop`}
+                    alt={authorName}
+                    class="w-10 h-10 rounded-full object-cover mr-3 border-2 border-white"
+                    width="40"
+                    height="40"
+                />
+            )}
+            <div>
+                <span class="block font-bold leading-none">{authorName || 'Penulis'}</span>
+                <span class="block text-sm opacity-80">{formattedDate}</span>
+            </div>
+          </div>
+
+                    <div class="absolute bottom-0 left-0 p-6 text-white w-full z-10">
+            <h2 class="h3 font-bold text-white">
+              {displayTitle}
+            </h2>
+          </div>
+        </a>
+      </div>
     )
   }
-  <h2 class="h3 mb-2 mt-4">
-    <a href={`/blog/${slug}`} class="block hover:text-primary"> {/* <-- Menggunakan slug Sanity */}
-      {title} {/* <-- Menggunakan title Sanity */}
-    </a>
-  </h2>
-  {/* Ringkasan dari Sanity (sudah berupa teks datar) */}
-  <p set:html={plainify(summary.slice(0, summary_length))} />
-  <a class="btn btn-primary mt-4" href={`/blog/${slug}`}> Read More </a> {/* <-- Menggunakan slug Sanity */}
+  
+    <p set:html={plainify(summary.slice(0, summary_length))} class="mt-4" />
+  <a class="btn btn-primary mt-4" href={`/blog/${slug}`}> Read More </a>
 </div>

@@ -1,57 +1,59 @@
 ---
 import Base from "@/layouts/Base.astro";
 import PostSingle from "@/layouts/PostSingle.astro";
-// Hapus: import { getSinglePage } from "@/lib/contentParser.astro";
-
-// Import Sanity Client yang sudah menggunakan Environment Variables (ENV)
-import { client } from "@/lib/sanityClient"; 
+import { client } from "@/lib/sanityClient"; 
 
 // 👑 QUERY GROQ UNTUK ARTIKEL TUNGGAL DENGAN DATA SEO LENGKAP
 const SINGLE_POST_QUERY = `
 *[_type == "post" && slug.current == $slug][0]{
-  // Kita ambil semua data yang dibutuhkan oleh layout dan SEO
-  title,
-  "slug": slug.current,
-  publishedAt,
-  body, // <-- Ini Portable Text, konten utama
-  "imageUrl": mainImage.asset->url,
-  
-  // Data SEO (sesuai field di schema Sanity Anda)
-  seo {
-    metaTitle,
-    metaDescription,
-    "ogImage": openGraphImage.asset->url
-  }
+  // Kita ambil semua data yang dibutuhkan oleh layout dan SEO
+  title,
+  "slug": slug.current,
+  publishedAt,
+  body, // <-- Ini Portable Text, konten utama
+  "imageUrl": mainImage.asset->url,
+  
+  // 🚀 PENTING: TAMBAH FIELD NAVIGASI DINAMIS
+  relatedLinks, 
+  
+  // BARU: Tambahkan blok Author untuk mengambil Nama, Bio, dan Gambar
+  "author": author->{
+    name, 
+    bio, 
+    "image": image.asset->url
+  },
+  
+  // Data SEO (sesuai field di schema Sanity Anda)
+  seo {
+    metaTitle,
+    metaDescription,
+    "ogImage": openGraphImage.asset->url
+  }
 }`;
 
 
 export async function getStaticPaths() {
-  // 1. Fetch semua slug dari Sanity untuk membuat paths
-  // Ini lebih cepat daripada fetch konten penuh
-  const slugs = await client.fetch(`*[_type == "post" && defined(slug.current)].slug.current`);
+  // 1. Fetch semua slug dari Sanity untuk membuat paths
+  const slugs = await client.fetch(`*[_type == "post" && defined(slug.current)].slug.current`);
 
-  // 2. Buat paths menggunakan slug Sanity
-  return slugs.map((slug) => ({
-    params: {
-      // Kita tetap menggunakan 'single' sebagai nama parameter URL, 
-      // tetapi nilainya adalah slug dari Sanity
-      single: slug, 
-    },
-    // Kita tidak lagi menggunakan 'props: { post }' di getStaticPaths
-    // karena kita akan fetch data lengkapnya di bawah.
-  }));
+  // 2. Buat paths menggunakan slug Sanity
+  return slugs.map((slug) => ({
+    params: {
+      single: slug, 
+    },
+  }));
 }
 
 
 // Ambil slug dari URL
-const { single } = Astro.params; 
+const { single } = Astro.params; 
 
 // Fetch data artikel tunggal dari Sanity
 const post = await client.fetch(SINGLE_POST_QUERY, { slug: single });
 
 if (!post) {
-    // Jika artikel tidak ditemukan di Sanity
-    return Astro.redirect('/404');
+    // Jika artikel tidak ditemukan di Sanity
+    return Astro.redirect('/404');
 }
 
 // 🎯 Mapping Data Sanity ke Variabel Lama (Mempertahankan Gaya Props)
@@ -70,13 +72,10 @@ const image = post.seo?.ogImage || post.imageUrl;
 
 
 // 🚨 PENTING: Struktur objek 'post' yang diteruskan ke PostSingle sekarang adalah objek Sanity.
-// Anda harus mengubah PostSingle.astro agar menggunakan post.title, post.body, dll.
-// daripada post.data.title, post.data.body.
+// postForLayout.data akan berisi: {title, slug, publishedAt, body, imageUrl, author, seo, relatedLinks}
 const postForLayout = {
-    // Membungkus post Sanity agar PostSingle dapat mengakses semua data
-    data: post, 
-    // Jika komponen lama membutuhkan field body secara langsung, 
-    // Anda bisa menambahkannya di sini, tapi PostSingle seharusnya cukup menerima objek 'post'.
+    // Membungkus post Sanity agar PostSingle dapat mengakses semua data
+    data: post, 
 };
 
 ---
@@ -87,5 +86,5 @@ const postForLayout = {
   description={description}
   image={image}
 >
-  <PostSingle post={postForLayout} /> 
+  <PostSingle post={postForLayout} /> 
 </Base>
