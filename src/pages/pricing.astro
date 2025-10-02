@@ -5,50 +5,63 @@ import type { CollectionEntry } from "astro:content";
 import { getEntry } from "astro:content";
 
 const entry = (await getEntry(
-  "pricing",
-  "-index"
+  "pricing",
+  "-index"
 )) as CollectionEntry<"pricing">;
 const { title, description, plans, call_to_action } = entry.data;
 ---
 
 <Base title={title} description={description}>
-  <section class="section pb-0">
-    <div class="container">
-      <h1 class="text-center font-normal">{title}</h1>
-      <div class="section row -mt-10 justify-center md:mt-0">
-        {
-          plans?.map((plan) => (
-            <div
-              class={`col-12 md:col-4 ${
-                !plan.recommended ? "lg:px-0" : "col-recommended"
-              }`}
-            >
-              <div class="card text-center">
-                <h4>{plan.title}</h4>
-                <div class="mt-5">
-                  <span class="text-5xl text-text-dark">${plan.price}</span>
-                  <span>/ {plan.type}</span>
-                </div>
-                <h6 class="mt-2 font-normal text-text">{plan.subtitle}</h6>
-                <ul class="mt-5">
-                  {plan?.features?.map((feature) => (
-                    <li class="mb-[10px] leading-5">{feature}</li>
-                  ))}
-                </ul>
-                <a
-                  class={`btn mt-5 ${
-                    plan.recommended ? "btn-primary" : "btn-outline-primary"
-                  }`}
-                  href={plan.button.link}
-                >
-                  {plan.button.label}
-                </a>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-  <Cta cta={call_to_action} />
+  <section class="section pb-0">
+    <div class="container">
+      <h1 class="text-center font-normal">{title}</h1>
+      
+      {/* 🌟 SOLUSI FINAL JARAK ANTARA JUDUL & DESKRIPSI */}
+      <p class="text-center text-lg text-text-dark my-5">
+        {description}
+      </p>
+      
+      {/* 🌟 JARAK UNTUK KOTAK HARGA DI BAWAH DESKRIPSI */}
+      <div class="section row justify-center mt-10">
+        {
+          plans?.map((plan) => (
+            <div
+              class={`col-12 md:col-4 ${
+                !plan.recommended ? "lg:px-0" : "col-recommended"
+              }`}
+            >
+              <div class="card text-center">
+                
+                <h4>{plan.title}</h4>
+                
+                <h6 class="mt-0 mb-4 font-normal text-sm text-gray-500">{plan.subtitle}</h6> 
+                
+                <div class="mt-5 mb-2">
+                  <span class="text-2xl text-text-dark font-normal mr-1">Rp</span>
+                  <span class="text-5xl text-text-dark">{plan.price}</span>
+                  <span>/ {plan.type}</span> 
+                </div>
+                
+                <ul class="mt-5">
+                  {plan?.features?.map((feature) => (
+                    <li class="mb-[10px] leading-5">{feature}</li>
+                  ))}
+                </ul>
+                
+                <a
+                  class={`btn mt-5 ${
+                    plan.recommended ? "btn-primary" : "btn-outline-primary"
+                  }`}
+                  href={plan.button.link}
+                >
+                  {plan.button.label}
+                </a>
+                </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <Cta cta={call_to_action} />
 </Base>

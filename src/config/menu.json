@@ -16,10 +16,7 @@
       "name": "Contact",
       "url": "/contact"
     },
-    {
-      "name": "FAQ",
-      "url": "/faq"
-    },
+   
     {
       "name": "Elements",
       "url": "/elements"
@@ -60,8 +57,8 @@
       "name": "Support",
       "menu": [
         {
-          "text": "FAQ",
-          "url": "/faq"
+          "text": "WhatsApp Chat",
+          "url": "https://wa.me/6281274203815?text=Assalamualaikum%2C%20Hai%20kk%20Saya%20Mau%20Buat%20website%2C%20Bisa%20dibantu%3F"
         },
         {
           "text": "Privacy Policy",
