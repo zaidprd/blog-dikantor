@@ -5,74 +5,83 @@ import { markdownify } from "@/lib/utils/textConverter";
 import type { CollectionEntry } from "astro:content";
 import { getEntry } from "astro:content";
 
+// Mengambil data dari file Markdown (yang sudah kita edit)
 const entry = (await getEntry(
-  "contact",
-  "-index"
+  "contact",
+  "-index"
 )) as CollectionEntry<"contact">;
+
+// Mengambil URL Formspree dari config.json
 const { contact_form_action } = config.params;
 const { title, description, info } = entry.data;
 ---
 
 <Base title={title} description={description}>
-  <section class="section">
-    <div class="container">
-      <h1 class="text-center font-normal" set:html={markdownify(title)} />
-      <div class="section row pb-0">
-        <div class="col-12 md:col-6 lg:col-7">
-          <form class="contact-form" method="POST" action={contact_form_action}>
-            <div class="mb-3">
-              <input
-                class="form-input w-full rounded"
-                name="name"
-                type="text"
-                placeholder="Name"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                class="form-input w-full rounded"
-                name="email"
-                type="email"
-                placeholder="Your email"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <input
-                class="form-input w-full rounded"
-                name="subject"
-                type="text"
-                placeholder="Subject"
-                required
-              />
-            </div>
-            <div class="mb-3">
-              <textarea
-                class="form-textarea w-full rounded-md"
-                rows="7"
-                placeholder="Your message"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary"> Send Now</button>
-          </form>
-        </div>
-        <div class="content col-12 md:col-6 lg:col-5">
-          <h4 set:html={markdownify(info?.title)} />
-          <p class="mt-4" set:html={markdownify(info?.description)} />
-          <ul class="contact-list mt-5 list-none pl-0">
-            {
-              info?.contacts?.map((contact) => (
-                <li>
-                  <strong
-                    class="text-text-dark"
-                    set:html={markdownify(contact)}
-                  />
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
+  <section class="section">
+    <div class="container">
+            <h1 class="text-center font-normal" set:html={markdownify(title)} />
+      <div class="section row pb-0">
+        
+                <div class="col-12 md:col-6 lg:col-7">
+          <form class="contact-form" method="POST" action={contact_form_action}>
+            <div class="mb-3">
+              <input
+                class="form-input w-full rounded"
+                name="name"
+                type="text"
+                placeholder="Nama Anda"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                class="form-input w-full rounded"
+                name="email"
+                type="email"
+                placeholder="Email Anda"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <input
+                class="form-input w-full rounded"
+                name="subject"
+                type="text"
+                placeholder="Subjek"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <textarea
+                class="form-textarea w-full rounded-md"
+                name="message"                 rows="7"
+                placeholder="Pesan Anda"></textarea>
+            </div>
+                        <button 
+              type="submit" 
+              class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-full transition duration-200 shadow-md"> 
+              Kirim Pesan Sekarang
+            </button>
+          </form>
+        </div>
+        
+                <div class="content col-12 md:col-6 lg:col-5">
+          <h4 set:html={markdownify(info?.title)} />
+          <p class="mt-4" set:html={markdownify(info?.description)} />
+          <ul class="contact-list mt-5 list-none pl-0">
+            {
+              info?.contacts?.map((contact) => (
+                <li>
+                  <strong
+                    class="text-text-dark"
+                    set:html={markdownify(contact)}
+                  />
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

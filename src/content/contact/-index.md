@@ -1,12 +1,12 @@
 ---
-title: "Contact Us"
-description: "meta description"
+title: "Hubungi Kami"
+description: "Punya ide bisnis? Hubungi **Ahmad Zaid** sekarang untuk layanan **jasa pembuatan website** profesional, cepat, dan SEO-Friendly di Kebon Jeruk, Jakarta Barat. Konsultasi gratis!"
 draft: false
 info:
-  title: Why you should contact us!
-  description: Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit recusandae voluptates doloremque veniam temporibus porro culpa ipsa, nisi soluta minima saepe laboriosam debitis nesciunt.
+  title: Wujudkan Website Impian Anda Sekarang Juga!
+  description: Siap membangun kehadiran digital yang kuat dan profesional? Tim kami ahli dalam **desain web modern, optimasi SEO**, dan memastikan website Anda mencapai audiens yang tepat. Jangan tunda lagi, mari kita diskusikan proyek Anda!
   contacts:
-    - "phone: +88 125 256 452"
-    - "Mail: [info@bigspring.com](mailto:info@bigspring.com)"
-    - "Address: 360 Main rd, Rio, Brazil"
+    - "Telepon/WhatsApp: **0812-7420-3815**"
+    - "Email: **ahmadzaid.tamiang@gmail.com**"
+    - "Alamat: **Kebon Jeruk, Jakarta Barat**"
 ---
