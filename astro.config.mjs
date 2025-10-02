@@ -19,7 +19,8 @@ async function getHighlighter() {
 
 // https://astro.build/config
 export default defineConfig({
-  site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
+  // BARIS INI MENGGUNAKAN DOMAIN DARI config.json, DENGAN FALLBACK KE yajodoh.com
+  site: config.site.base_url ? config.site.base_url : "https://yajodoh.com",
   base: config.site.base_path ? config.site.base_path : "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
   vite: { plugins: [tailwindcss()] },
@@ -28,13 +29,14 @@ export default defineConfig({
     sitemap(),
     AutoImport({
       imports: [
-        "@/shortcodes/Button",
-        "@/shortcodes/Accordion",
-        "@/shortcodes/Notice",
-        "@/shortcodes/Video",
-        "@/shortcodes/Youtube",
-        "@/shortcodes/Tabs",
-        "@/shortcodes/Tab",
+        // Daftar shortcodes Anda
+        "../shortcodes/Button",
+        "../shortcodes/Accordion",
+        "../shortcodes/Notice",
+        "../shortcodes/Video",
+        "../shortcodes/Youtube",
+        "../shortcodes/Tabs",
+        "../shortcodes/Tab",
       ],
     }),
     mdx(),
