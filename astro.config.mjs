@@ -19,7 +19,7 @@ async function getHighlighter() {
 
 // https://astro.build/config
 export default defineConfig({
-  // BARIS INI MENGGUNAKAN DOMAIN DARI config.json, DENGAN FALLBACK KE yajodoh.com
+  // Baris ini sudah benar, mengambil dari config.json
   site: config.site.base_url ? config.site.base_url : "https://yajodoh.com",
   base: config.site.base_path ? config.site.base_path : "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
@@ -28,8 +28,9 @@ export default defineConfig({
     react(),
     sitemap(),
     AutoImport({
+      // PERBAIKAN: Menggunakan jalur relatif (../shortcodes/...) 
+      // untuk menghindari kegagalan resolusi alias (@/) saat build di Cloudflare.
       imports: [
-        // Daftar shortcodes Anda
         "../shortcodes/Button",
         "../shortcodes/Accordion",
         "../shortcodes/Notice",
