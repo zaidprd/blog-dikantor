@@ -19,7 +19,8 @@ async function getHighlighter() {
 
 // https://astro.build/config
 export default defineConfig({
-  site: config.site.base_url ? config.site.base_url : "http://examplesite.com",
+  // Pastikan ini benar agar sitemap tidak eror lagi
+  site: config.site.base_url ? config.site.base_url : "https://yajodoh.com",
   base: config.site.base_path ? config.site.base_path : "/",
   trailingSlash: config.site.trailing_slash ? "always" : "never",
   vite: { plugins: [tailwindcss()] },
@@ -27,6 +28,8 @@ export default defineConfig({
     react(),
     sitemap(),
     AutoImport({
+      // PERBAIKAN: Menggunakan alias "@/shortcodes/" yang sudah 
+      // didefinisikan secara eksplisit di tsconfig.json Anda.
       imports: [
         "@/shortcodes/Button",
         "@/shortcodes/Accordion",
