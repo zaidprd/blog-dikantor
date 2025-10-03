@@ -4,35 +4,33 @@
       "name": "Home",
       "url": "/"
     },
+    
     {
-      "name": "Blog",
-      "url": "/blog"
-    },
-    {
-      "name": "Pricing",
+      "name": "Harga",
       "url": "/pricing"
     },
     {
       "name": "Contact",
       "url": "/contact"
     },
-   
     {
-      "name": "Elements",
-      "url": "/elements"
+      "name": "Blog",
+      "url": "/blog"
     }
+   
+    
   ],
   "footer": [
     {
       "name": "Company",
       "menu": [
         {
-          "text": "Pricing",
+          "text": "Harga",
           "url": "/pricing"
         },
         {
           "text": "Quick Start",
-          "url": "#"
+          "url": "/"
         }
       ]
     },
@@ -41,14 +39,14 @@
       "menu": [
         {
           "text": "Features",
-          "url": "#"
+          "url": "/portofolio"
         },
         {
           "text": "Platform",
-          "url": "#"
+          "url": "/"
         },
         {
-          "text": "Pricing",
+          "text": "Harga",
           "url": "/pricing"
         }
       ]

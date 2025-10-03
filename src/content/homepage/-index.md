@@ -59,7 +59,7 @@ services:
   - title: "Pembuatan Landing Page Berbasis Konversi Tinggi"
     content: "Desain khusus yang fokus untuk mengarahkan pengunjung ke tindakan spesifik, seperti pendaftaran, pembelian, atau pengisian formulir prospek."
     images:
-      - "/images/service-slide-1.png" 
+      - "/images/seo-yajodoh.webp" 
     
   - title: "Jasa Website Kustom dan Maintenance"
     content: "Butuh fungsi unik di luar paket standar? Kami siap membuat solusi kustom. Kami juga menyediakan paket *maintenance* rutin untuk keamanan dan update."
