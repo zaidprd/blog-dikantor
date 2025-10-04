@@ -10,6 +10,10 @@
       "url": "/pricing"
     },
     {
+      "name": "Portofolio",
+      "url": "/portofolio"
+    },
+    {
       "name": "Contact",
       "url": "/contact"
     },

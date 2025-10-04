@@ -1,0 +1,87 @@
+---
+import Base from "@/layouts/Base.astro";
+import { markdownify } from "@/lib/utils/textConverter";
+
+const title = "Portofolio";
+const description = "Berikut beberapa website yang pernah kita kerjakan berbagai proyek company profile, Silahkan konsultasi website sesuai kebutuhan anda.";
+
+const projects = [
+    {
+        title: "Kontraktor Panel Listrik",
+        link: "https://bloksetschneider.com/", 
+        image: "/images/blokset-schneider.webp" 
+    },
+    {
+        title: "Web Konsultan",
+        link: "/https://jayakonsultanbisnis.com/", 
+        image: "/images/jasa-studi-kelyakan.webp"
+    },
+    {
+        title: "Web Logistik",
+        link: "https://deltalogistik.id/", 
+        image: "/images/delta-logistik.webp"
+    },
+    {
+        title: "Supplier Komopoenen Listrik",
+        link: "https://connectlistrik.com/", 
+        image: "/images/connect-listrik.webp" 
+    },
+    {
+        title: "Jasa Sertifikasi ISO",
+        link: "https://induscipta.com/", 
+        image: "/images/induscipta.webp"
+    },
+    {
+        title: "Sales Panel Listrik",
+        link: "https://salespanellistriksimetri.info/", 
+        image: "/images/sales-panel-simetri.webp"
+    },
+];
+
+---
+
+<Base title={title} description={description}>
+    <section class="section">
+        <div class="container">
+            
+            <h1 class="text-center font-normal mb-10" set:html={markdownify(title)} />
+            
+            <p class="text-center max-w-3xl mx-auto mb-12 text-xl">
+                {description}
+            </p>
+
+            <div class="section row pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+                
+                {
+                    projects.map((project) => (
+                        <div class="mb-6"> 
+                            <a href={project.link} class="block rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden">
+                                
+                                {project.image && (
+                                    <img 
+                                        src={project.image} 
+                                        alt={project.title} 
+                                        class="w-full h-96 object-contain" 
+                                        loading="lazy"
+                                    />
+                                )}
+
+                                <div class="p-6">
+                                    <h2 class="text-xl font-semibold mb-2 text-center">{project.title}</h2>
+                                    
+                                    </div>
+                            </a>
+                        </div>
+                    ))
+                }
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="/contact" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-full transition duration-200 shadow-md">
+                    Punya Proyek? Hubungi Saya
+                </a>
+            </div>
+
+        </div>
+    </section>
+</Base>

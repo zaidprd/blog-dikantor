@@ -28,7 +28,7 @@
 }
 
 .nav-link {
-  @apply py-3 px-2 font-primary text-base font-bold text-text-dark transition hover:text-primary md:py-4 lg:px-3;
+  @apply py-3 px-2 font-primary text-lg font-bold text-text-dark transition hover:text-primary md:py-4 lg:px-3;
 }
 
 .nav-link-active {
