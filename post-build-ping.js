@@ -1,23 +1,26 @@
 // post-build-ping.js
 import { google } from 'googleapis';
 
-// !!! PENTING: PASTIKAN URL SITEMAP INI BENAR !!!
-// URL ini harus mengarah ke sitemap-index.xml di domain live Anda.
+// Ganti jika sitemap Anda tidak di lokasi ini
 const SITEMAP_URL = 'https://yadojoh.com/sitemap-index.xml'; 
 
 async function pingGoogle() {
-  const serviceAccountKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  if (!serviceAccountKey) {
-    console.warn('⚠️ GOOGLE_SERVICE_ACCOUNT_KEY tidak ditemukan. Melewatkan permintaan Indexing API.');
+  // Mengambil kredensial dari variabel lingkungan baru
+  const clientEmail = process.env.GCP_CLIENT_EMAIL; 
+  const privateKey = process.env.GCP_PRIVATE_KEY;
+
+  if (!clientEmail || !privateKey) {
+    console.error('❌ GAGAL: Kredensial GCP (GCP_CLIENT_EMAIL atau GCP_PRIVATE_KEY) tidak ditemukan di Environment Variables Cloudflare.');
+    console.error('Pastikan Anda telah mengatur variabel ini dengan benar.');
     return;
   }
-  
-  // Pastikan Anda telah menginstal packages: npm install axios googleapis
-  const key = JSON.parse(serviceAccountKey);
+
+  // Membuat klien JWT untuk otentikasi
   const jwtClient = new google.auth.JWT(
-    key.client_email,
+    clientEmail,
     null,
-    key.private_key,
+    // Mengganti \\n menjadi newline yang dibutuhkan oleh kunci privat
+    privateKey.replace(/\\n/g, '\n'), 
     ['https://www.googleapis.com/auth/indexing'],
     null
   );
@@ -25,7 +28,7 @@ async function pingGoogle() {
   try {
     await jwtClient.authorize();
     
-    // Memberi tahu Google bahwa sitemap telah diperbarui
+    // Mengirim notifikasi ke Google
     const response = await google.indexing('v3').urlNotifications.publish({
       auth: jwtClient,
       requestBody: {
@@ -35,10 +38,9 @@ async function pingGoogle() {
     });
     
     console.log(`✅ NOTIFIKASI INDEXING API BERHASIL! Status: ${response.status}`);
-    console.log('Google telah diberitahu untuk merayapi sitemap terbaru.');
 
   } catch (error) {
-    console.error('❌ GAGAL mengirim Notifikasi Indexing API:', error.message);
+    console.error('❌ GAGAL mengirim Notifikasi Indexing API (Check GSC Status):', error.message);
   }
 }
 
