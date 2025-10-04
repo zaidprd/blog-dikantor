@@ -6,10 +6,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node post-build-ping.js",
     "format": "prettier -w .",
     "check": "astro check",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "start": "astro dev"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -24,9 +25,11 @@
     "astro": "^5.14.1",
     "astro-auto-import": "^0.4.4",
     "astro-font": "^1.0.0",
+    "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "fuse.js": "^7.1.0",
     "github-slugger": "^2.0.0",
+    "googleapis": "^161.0.0",
     "marked": "^15.0.7",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
